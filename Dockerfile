@@ -6,4 +6,7 @@ WORKDIR /app
 
 COPY pass_gen.py /app/pass_gen.py
 
-CMD ["python3", "/app/pass_gen.py"]
+ARG USER_NAME=Captain
+ENV USER_NAME=$USER_NAME
+
+CMD ["sh", "-c", "echo Hello, $USER_NAME! && python3 /app/pass_gen.py"]
