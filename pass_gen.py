@@ -28,6 +28,5 @@ if __name__ == "__main__":
     number_of_nums = int(input("Enter number count: "))
     number_of_lower = int(input("Enter lowercase count: "))
     number_of_upper = int(input("Enter uppercase count: "))
-    name = input("What is your name?: ")
 
-    print(f"\nHello {name.capitalize()}, Here is your password: {pass_gen(number_of_nums, number_of_lower, number_of_upper)}")
+    print(f"\nHere is your password: {pass_gen(number_of_nums, number_of_lower, number_of_upper)}")
