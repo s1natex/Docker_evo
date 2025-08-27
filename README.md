@@ -13,6 +13,7 @@ docker build --build-arg USER_NAME="add-your-name" -t passgen .
 - Run the image:
 ```sh
 docker run -it passgen
+```
 
 ### Flask api
 A basic python api with flask dockerized and deployed with Docker compose
