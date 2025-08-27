@@ -21,9 +21,13 @@ A basic python api with flask dockerized and deployed with Docker compose
 - Clone and run:
 ```
 git clone https://github.com/s1natex/Basic_Dockerfile
-docker-compose up -d
+docker compose up
 ```
 - Test it:
 ```
+localhost:8080/get
 
+curl -X POST http://localhost:8080/post \
+     -H "Content-Type: application/json" \
+     -d '{"name":"Natan","role":"DevOps"}'
 ```
