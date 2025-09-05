@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pass-gen
+  namespace: passgen-app
+  labels:
+    app: pass-gen
+spec:
+  type: ClusterIP
+  selector:
+    app: pass-gen
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000

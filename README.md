@@ -1,34 +1,67 @@
-### Project page:
-[Basic Dockerfile](https://roadmap.sh/projects/basic-dockerfile)
+# Password Generator — Python + Node
+[![CI](https://github.com/s1natex/Docker_evo/actions/workflows/ci.yml/badge.svg)](https://github.com/s1natex/Docker_evo/actions/workflows/ci.yml)
 
-# How to use:
-- Clone the repo:
-```sh
-git clone https://github.com/s1natex/Basic_Dockerfile
+A small microservice password generator with a python flask service and node+html UI
+## Project Overview
+- **Backend** — Python/Flask API that generates strong random passwords  
+  Endpoints: `GET /health`, `GET /generate?length=…&digits=…&symbols=…&uppercase=…`
+- **Frontend** — Node/Express server that serves the UI and proxies `GET /api/generate` to the backend
+- Each service runs on a docker container, Build wrapped with docker compose translated to k8s yaml via kompose tool
+- Deployed and Tested with Kubernetes in a custom namespace
+- Validated with GitHub Actions CI
+
+## Prerequisites
+### A) Run with Docker Compose
+- **Docker Desktop** (or Docker Engine) with **Compose v2**
+  - Check: `docker --version` and `docker compose version`
+- **Git** (to clone/pull)
+  - Check: `git --version`
+- **Open ports:** `3000` (frontend) and `5000` (backend) must be free
+
+### B) Deploy with Kubernetes (Docker Desktop)
+- **Docker Desktop’s Kubernetes** **enabled**  
+  - Docker Desktop → Settings → Kubernetes → *Enable Kubernetes*
+- **kubectl**
+  - Check: `kubectl version --client`
+- **Local images built** with Docker (same runtime as Docker Desktop)
+  - Run: `docker compose build`
+
+## Deployment
+- **Clone** the Repository and **cd** to Repository directory
+- **Docker compose:**
 ```
-- Build the image:
-```sh
-docker build --build-arg USER_NAME="add-your-name" -t passgen .
+docker compose up --build -d
 ```
-- Run the image:
-```sh
-docker run -it passgen
+- **Kubernetes:**
+```
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/pass-gen-deployment.yaml
+kubectl apply -f k8s/pass-gen-service.yaml
+kubectl apply -f k8s/frontend-deployment.yaml
+kubectl apply -f k8s/frontend-service-nodeport.yaml
 ```
 
-### Flask api
-A basic python api with flask dockerized and deployed with Docker compose
+## UI and Terminal validation
+- http://localhost:3000
+  
+![UI](./screenshots/ui.png)
 
-# Instructions:
-- Clone and run:
+- **Terminal commands:**
 ```
-git clone https://github.com/s1natex/Basic_Dockerfile
-docker compose up
-```
-- Test it:
-```
-localhost:8080/get
+kubectl -n passgen-app port-forward svc/pass-gen 5000:5000 &
+curl "http://localhost:5000/health"
+curl "http://localhost:5000/generate?length=20"
 
-curl -X POST http://localhost:8080/post \
-     -H "Content-Type: application/json" \
-     -d '{"name":"Natan","role":"DevOps"}'
 ```
+
+![TERMINAL](./screenshots/terminal.png)
+
+## Features
+- Cryptographically secure passwords using Python’s `secrets` module
+- Options for length, digits, symbols, uppercase
+- Clean Express proxy: frontend never calls containers directly by IP
+- Fully containerized one-command up with Docker Compose
+- CI: unit tests + build + smoke tests via GitHub Actions
+- Kubernetes manifests
+- Modern, centered UI
+  

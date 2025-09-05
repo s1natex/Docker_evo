@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "restructure" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend deps for tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r services/pass-gen/requirements.txt
+
+      - name: Run backend unit tests
+        run: |
+          pytest -q services/pass-gen/tests
+
+      - name: Build & run with Docker Compose
+        run: |
+          docker compose up --build -d
+          for i in {1..30}; do
+            curl -fsS http://localhost:3000/health && break
+            sleep 2
+          done
+          for i in {1..30}; do
+            curl -fsS http://localhost:5000/health && break
+            sleep 2
+          done
+
+      - name: Smoke tests
+        run: |
+          curl -fsS "http://localhost:5000/generate?length=20" | jq .
+          curl -fsS "http://localhost:3000" | head -n 30
