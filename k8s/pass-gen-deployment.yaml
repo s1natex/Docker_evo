@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pass-gen
+  namespace: passgen-app
+  labels:
+    app: pass-gen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pass-gen
+  template:
+    metadata:
+      labels:
+        app: pass-gen
+    spec:
+      containers:
+        - name: pass-gen
+          image: docker_evo-pass-gen:latest
+          imagePullPolicy: IfNotPresent   # uses your locally-built image on Docker Desktop
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 2
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
