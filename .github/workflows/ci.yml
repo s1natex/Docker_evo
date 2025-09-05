@@ -23,8 +23,8 @@ jobs:
           pip install -r services/pass-gen/requirements.txt
 
       - name: Run backend unit tests
-        run: |
-          pytest -q services/pass-gen/tests
+        working-directory: services/pass-gen
+        run: pytest -q
 
       - name: Build & run with Docker Compose
         run: |
