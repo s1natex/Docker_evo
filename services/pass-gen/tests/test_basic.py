@@ -1,4 +1,3 @@
-import json
 from app import app
 
 def test_generate_default():
