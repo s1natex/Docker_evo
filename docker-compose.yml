@@ -1,0 +1,25 @@
+services:
+  pass-gen:
+    build: ./services/pass-gen
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  frontend:
+    build: ./services/frontend
+    environment:
+      BACKEND_URL: http://pass-gen:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      pass-gen:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
