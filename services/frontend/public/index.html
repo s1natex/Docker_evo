@@ -1,61 +1,295 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <title>Password-Generator</title>
     <style>
-      body { font-family: system-ui, sans-serif; margin: 2rem; max-width: 720px; }
-      header { font-size: 2rem; font-weight: 700; margin-bottom: 1rem; }
-      .row { margin: .5rem 0; }
-      input, button { padding: .5rem; font-size: 1rem; }
-      #output { padding: .75rem; background: #f5f5f5; border-radius: .5rem; word-break: break-all; }
-      .controls { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+      :root{
+        --bg: #0b0f14;
+        --card: rgba(255,255,255,0.06);
+        --card-border: rgba(255,255,255,0.12);
+        --text: #e7eef7;
+        --muted: #9db0c5;
+        --accent: #6ee7f9;
+        --accent-2: #7c6dfb;
+        --ok: #38d39f;
+        --warn: #ffb454;
+        --err: #ff6b6b;
+        --shadow: 0 10px 30px rgba(0,0,0,.35);
+        --radius: 16px;
+      }
+      @media (prefers-color-scheme: light){
+        :root{
+          --bg: #f5f7fb;
+          --card: rgba(255,255,255,0.9);
+          --card-border: rgba(17,24,39,0.06);
+          --text: #0f172a;
+          --muted: #44546b;
+          --accent: #0ea5e9;
+          --accent-2: #7c3aed;
+          --shadow: 0 12px 28px rgba(2,8,23,.08);
+        }
+      }
+
+      *{ box-sizing: border-box }
+      html, body { height: 100% }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at 20% -10%, rgba(124,109,251,.25), transparent 60%),
+          radial-gradient(900px 500px at 100% 0%, rgba(110,231,249,.25), transparent 60%),
+          var(--bg);
+        display: grid;
+        place-items: center;
+        padding: 32px;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 720px;
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        overflow: hidden;
+        animation: pop .35s ease-out;
+      }
+      @keyframes pop { from { transform: translateY(6px); opacity: .0 } to { transform: translateY(0); opacity: 1 } }
+
+      .header {
+        padding: 28px 28px 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .logo {
+        width: 40px; height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 8px 20px rgba(108,108,255,.35), inset 0 0 20px rgba(255,255,255,.25);
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(1.35rem, 1rem + 1.2vw, 1.75rem);
+        letter-spacing: .2px;
+      }
+      .sub {
+        color: var(--muted);
+        padding: 0 28px 8px;
+        font-size: .95rem;
+      }
+
+      .controls {
+        padding: 8px 28px 24px;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+      .field {
+        grid-column: span 12;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 12px 14px;
+      }
+      .field.compact { grid-column: span 12; }
+      @media (min-width: 640px){
+        .field.compact { grid-column: span 6; }
+      }
+      label { color: var(--muted); font-size: .95rem; }
+      input[type="number"]{
+        width: 100%;
+        max-width: 120px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--card-border);
+        background: transparent;
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+      }
+      input[type="checkbox"]{
+        accent-color: var(--accent);
+        width: 18px; height: 18px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 12px;
+        padding: 0 28px 28px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        appearance: none;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform .05s ease, filter .15s ease, opacity .2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        user-select: none;
+      }
+      .btn:active { transform: translateY(1px) }
+
+      .btn-primary {
+        color: #06131a;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        box-shadow: 0 10px 24px rgba(110, 231, 249, .25);
+      }
+      .btn-ghost {
+        color: var(--text);
+        background: transparent;
+        border: 1px solid var(--card-border);
+      }
+
+      .output-wrap {
+        margin: 0 28px 28px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 10px;
+      }
+      #output {
+        padding: 10px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 1.05rem;
+        word-break: break-all;
+        min-height: 1.8em;
+      }
+      .copy {
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--card-border);
+        background: rgba(255,255,255,0.05);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .foot {
+        padding: 0 28px 28px;
+        color: var(--muted);
+        font-size: .9rem;
+      }
+
+      /* focus states */
+      .btn:focus-visible, input:focus-visible, .copy:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
     </style>
   </head>
   <body>
-    <header>Password-Generator</header>
+    <main class="card" role="main">
+      <div class="header">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Password-Generator</h1>
+        </div>
+      </div>
+      <p class="sub">Generate strong, random passwords in one click.</p>
 
-    <div class="row controls">
-      <label>Length:
-        <input id="length" type="number" min="1" max="256" value="16" />
-      </label>
-      <label><input id="digits" type="checkbox" checked /> digits</label>
-      <label><input id="symbols" type="checkbox" checked /> symbols</label>
-      <label><input id="uppercase" type="checkbox" checked /> uppercase</label>
-      <button id="gen">Generate Password</button>
-      <button id="reset">Reset</button>
-    </div>
+      <section class="controls" aria-label="Options">
+        <div class="field">
+          <label for="length">Length</label>
+          <input id="length" type="number" min="4" max="256" value="16" />
+        </div>
 
-    <div class="row">
-      <div id="output" aria-live="polite"></div>
-    </div>
+        <div class="field compact">
+          <label><input id="digits" type="checkbox" checked /> Digits</label>
+        </div>
+        <div class="field compact">
+          <label><input id="symbols" type="checkbox" checked /> Symbols</label>
+        </div>
+        <div class="field compact">
+          <label><input id="uppercase" type="checkbox" checked /> Uppercase</label>
+        </div>
+      </section>
+
+      <section class="actions">
+        <button id="gen" class="btn btn-primary" aria-label="Generate Password">
+          <span>Generate Password</span>
+        </button>
+        <button id="reset" class="btn btn-ghost" aria-label="Reset options">
+          <span>Reset</span>
+        </button>
+      </section>
+
+      <section class="output-wrap" aria-live="polite">
+        <div id="output"></div>
+        <button id="copy" class="copy" title="Copy to clipboard">Copy</button>
+      </section>
+
+      <p class="foot">Tip: tweak options for different sites’ requirements.</p>
+    </main>
 
     <script>
-      const el = (id) => document.getElementById(id);
-      const out = el("output");
-      el("gen").addEventListener("click", async () => {
-        const params = new URLSearchParams({
-          length: el("length").value || 16,
-          digits: el("digits").checked,
-          symbols: el("symbols").checked,
-          uppercase: el("uppercase").checked
+      const $ = (id) => document.getElementById(id);
+      const out = $("output");
+
+      function params() {
+        return new URLSearchParams({
+          length: $("length").value || 16,
+          digits: $("digits").checked,
+          symbols: $("symbols").checked,
+          uppercase: $("uppercase").checked
         });
-        out.textContent = "Generating...";
+      }
+
+      $("gen").addEventListener("click", async () => {
+        out.textContent = "Generating…";
         try {
-          const r = await fetch("/api/generate?" + params.toString());
+          const r = await fetch("/api/generate?" + params().toString());
           const data = await r.json();
           out.textContent = data.password || ("Error: " + (data.error || r.status));
         } catch (e) {
           out.textContent = "Error: " + e;
         }
       });
-      el("reset").addEventListener("click", () => {
-        el("length").value = 16;
-        el("digits").checked = true;
-        el("symbols").checked = true;
-        el("uppercase").checked = true;
+
+      $("reset").addEventListener("click", () => {
+        $("length").value = 16;
+        $("digits").checked = true;
+        $("symbols").checked = true;
+        $("uppercase").checked = true;
         out.textContent = "";
+      });
+
+      $("copy").addEventListener("click", async () => {
+        const text = out.textContent.trim();
+        if(!text) return;
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = $("copy").textContent;
+          $("copy").textContent = "Copied!";
+          setTimeout(()=> $("copy").textContent = old, 1200);
+        } catch {
+          // Fallback: select and copy via execCommand
+          const ta = document.createElement("textarea");
+          ta.value = text; document.body.appendChild(ta);
+          ta.select(); document.execCommand("copy");
+          document.body.removeChild(ta);
+          const old = $("copy").textContent;
+          $("copy").textContent = "Copied!";
+          setTimeout(()=> $("copy").textContent = old, 1200);
+        }
       });
     </script>
   </body>
