@@ -46,11 +46,14 @@ kubectl -n passgen-app rollout status deploy/pass-gen
 kubectl -n passgen-app rollout status deploy/frontend
 ```
 
+### [Istio + Kiali install](istio_install.md)
+
 ## Clean Up
 - Docker Compose
 ```
 docker compose down
 ```
+- [Kubernetes + istio + kiali cleanup](istio_install.md)
 - Kubernetes
 ```
 kubectl delete namespace passgen-app --wait
@@ -59,6 +62,7 @@ kubectl delete namespace passgen-app --wait
 ## UI and Terminal validation
 - Via compose: http://localhost:3000
 - Via k8s: http://localhost:30080/
+- Via IngressGateway see: [Istio install](istio_install.md)
 
 ### [PassGen backend validation Commands](services/pass-gen/Validation.md)
   
@@ -81,4 +85,4 @@ curl "http://localhost:5000/generate?length=20"
 - CI: unit tests + build + smoke tests via GitHub Actions
 - Kubernetes manifests
 - Modern, centered UI
-  
+- Service mesh with istio mTLS pod to pod Communication, and kiali dashboard
