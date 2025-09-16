@@ -46,9 +46,21 @@ kubectl -n passgen-app rollout status deploy/pass-gen
 kubectl -n passgen-app rollout status deploy/frontend
 ```
 
+## Clean Up
+- Docker Compose
+```
+docker compose down
+```
+- Kubernetes
+```
+kubectl delete namespace passgen-app --wait
+```
+
 ## UI and Terminal validation
 - Via compose: http://localhost:3000
 - Via k8s: http://localhost:30080/
+
+### [PassGen backend validation Commands](pass-gen/Validation.md)
   
 ![UI](./screenshots/ui.png)
 

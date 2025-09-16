@@ -16,25 +16,35 @@ def build_charset(include_digits=True, include_symbols=True, include_uppercase=T
         chars += list(string.punctuation)
     return ''.join(chars)
 
-def to_bool(val, default=True):
-    if val is None: return default
+def parse_bool(val, default=True):
+    """Strict boolean parser with default fallback."""
+    if val is None:
+        return default
     v = str(val).strip().lower()
-    return v in ("1", "true", "t", "yes", "y", "on")
+    if v in ("1", "true", "t", "yes", "y", "on"):
+        return True
+    if v in ("0", "false", "f", "no", "n", "off"):
+        return False
+    return None
 
 @app.get("/generate")
 def generate():
     try:
         length = int(request.args.get("length", 16))
-        if length < 1 or length > 256:
-            return jsonify(error="length must be between 1 and 256"), 400
     except ValueError:
         return jsonify(error="length must be an integer"), 400
 
-    include_digits   = to_bool(request.args.get("digits"),   True)
-    include_symbols  = to_bool(request.args.get("symbols"),  True)
-    include_upper    = to_bool(request.args.get("uppercase"), True)
+    if length < 8 or length > 128:
+        return jsonify(error="length must be between 8 and 128"), 400
 
-    charset = build_charset(include_digits, include_symbols, include_upper)
+    digits = parse_bool(request.args.get("digits"), True)
+    symbols = parse_bool(request.args.get("symbols"), True)
+    uppercase = parse_bool(request.args.get("uppercase"), True)
+
+    if digits is None or symbols is None or uppercase is None:
+        return jsonify(error="digits, symbols, uppercase must be boolean (true/false)"), 400
+
+    charset = build_charset(digits, symbols, uppercase)
     if not charset:
         return jsonify(error="character set is empty"), 400
 
