@@ -35,14 +35,20 @@ docker compose up --build -d
 - **Kubernetes:**
 ```
 kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/serviceaccount.yaml
 kubectl apply -f k8s/pass-gen-deployment.yaml
 kubectl apply -f k8s/pass-gen-service.yaml
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/frontend-service-nodeport.yaml
+
+# Check rollout
+kubectl -n passgen-app rollout status deploy/pass-gen
+kubectl -n passgen-app rollout status deploy/frontend
 ```
 
 ## UI and Terminal validation
-- http://localhost:3000
+- Via compose: http://localhost:3000
+- Via k8s: http://localhost:30080/
   
 ![UI](./screenshots/ui.png)
 
