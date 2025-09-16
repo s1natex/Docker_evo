@@ -1,16 +1,20 @@
 services:
   pass-gen:
-    build: ./services/pass-gen
+    build:
+      context: ./services/pass-gen
+    image: docker_evo-pass-gen:latest
     ports:
       - "5000:5000"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request, sys; urllib.request.urlopen('http://localhost:5000/health').read()"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health').read()"]
       interval: 5s
       timeout: 3s
       retries: 12
 
   frontend:
-    build: ./services/frontend
+    build:
+      context: ./services/frontend
+    image: docker_evo-frontend:latest
     environment:
       BACKEND_URL: http://pass-gen:5000
     ports:

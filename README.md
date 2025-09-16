@@ -69,7 +69,6 @@ kubectl delete namespace passgen-app --wait
 kubectl -n passgen-app port-forward svc/pass-gen 5000:5000 &
 curl "http://localhost:5000/health"
 curl "http://localhost:5000/generate?length=20"
-
 ```
 
 ![TERMINAL](./screenshots/terminal.png)
