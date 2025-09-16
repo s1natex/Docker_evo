@@ -60,7 +60,7 @@ kubectl delete namespace passgen-app --wait
 - Via compose: http://localhost:3000
 - Via k8s: http://localhost:30080/
 
-### [PassGen backend validation Commands](pass-gen/Validation.md)
+### [PassGen backend validation Commands](services/pass-gen/Validation.md)
   
 ![UI](./screenshots/ui.png)
 
