@@ -1,9 +1,9 @@
 name: cd
 
 on:
-  workflow_run:
-    workflows: ["main-ci"]
-    types: [completed]
+#   workflow_run:
+#     workflows: ["main-ci"]
+#     types: [completed]
   workflow_dispatch:
 
 permissions:
