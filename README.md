@@ -26,8 +26,8 @@
 - `CD Workflow`: Workflow for automatically deploying new ECS task definitions after a successful CI run
 - `AWS Secrets Manager`: Service used to securely store sensitive environment variables
 # Instructions Links
-- ## [Setup and Testing on Local Docker-Compose](./docs/compose-deploy-test-clean.md)
-- ## [Setup and Testing on AWS ECS-Fargate](./docs/aws-ecs-startup.md)
+- ### [Setup and Testing on Local Docker-Compose](./docs/compose-deploy-test-clean.md)
+- ### [Setup and Testing on AWS ECS-Fargate](./docs/aws-ecs-startup.md)
 # Project Diagram
 ![ProjectDiagram](./docs/media/projectdiagram.drawio.png)
 # Screenshots
