@@ -115,3 +115,6 @@ test-results/
 
 misc/
 Plan.txt
+
+# Terraform image tag file (allow CI to commit)
+!terraform/ecs/image.auto.tfvars
