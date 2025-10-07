@@ -1,9 +1,9 @@
-# Microservice Webapp Deployment to ECS-Fargate with an E2E CI/CD
+# Webapp Deployment to ECS-Fargate with an E2E CI/CD
 [![TerraformCI](https://github.com/s1natex/Docker_evo/actions/workflows/terraform-ci.yml/badge.svg)](https://github.com/s1natex/Docker_evo/actions/workflows/terraform-ci.yml)
 [![MainCI](https://github.com/s1natex/Docker_evo/actions/workflows/main-ci.yml/badge.svg)](https://github.com/s1natex/Docker_evo/actions/workflows/main-ci.yml)
 [![ECSDeployment](https://github.com/s1natex/Docker_evo/actions/workflows/cd.yml/badge.svg)](https://github.com/s1natex/Docker_evo/actions/workflows/cd.yml)
 # [Project Page](https://roadmap.sh/projects/basic-dockerfile)
-# Project Overview
+### Project Overview
 - `Frontend`: React application UI for password generation and management
 - `Backend`: Python Flask API handling password generation logic and database interactions
 - `RDS database`: RDS PostgreSQL instance storing user data, credentials managed through AWS Secrets Manager
