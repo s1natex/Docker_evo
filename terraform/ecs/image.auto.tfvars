@@ -1,1 +1,1 @@
-image_tag = "docker-evo-20251007-200125-2dbba81"
+image_tag = "docker-evo-20251007-200914-3b744b6"
