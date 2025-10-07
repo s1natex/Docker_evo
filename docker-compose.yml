@@ -1,7 +1,7 @@
 services:
   pass-gen:
     build:
-      context: ./services/pass-gen
+      context: ./app/pass-gen
     image: docker_evo-pass-gen:latest
     ports:
       - "5000:5000"
@@ -13,7 +13,7 @@ services:
 
   frontend:
     build:
-      context: ./services/frontend
+      context: ./app/frontend
     image: docker_evo-frontend:latest
     environment:
       BACKEND_URL: http://pass-gen:5000
