@@ -57,4 +57,6 @@ watch cicd pick it up and pass
 
 access alb_dns_name address terraform output and see the change made
 
+add manual rollback procedure
+
 clean up
