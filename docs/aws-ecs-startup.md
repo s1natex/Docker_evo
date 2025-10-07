@@ -44,7 +44,8 @@ terraform destory
 AWS_ROLE_TO_ASSUME update new one in github secrets has to be inline with current infra deployment!
 find iam role aws iam list-roles | grep <role-name-or-prefix>
 
-Then describe it aws iam get-role --role-name <your-gha-oidc-role-name>
+Then describe it 
+aws iam get-role --role-name <your-gha-oidc-role-name>
 
 make changes to files in the following paths
       - "app/**"
@@ -57,6 +58,8 @@ watch cicd pick it up and pass
 
 access alb_dns_name address terraform output and see the change made
 
-add manual rollback procedure
+manual rollback procedure
+git revert HEAD
+git push origin HEAD
 
-clean up
+clean up^^
