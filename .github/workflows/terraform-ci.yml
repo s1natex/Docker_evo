@@ -1,11 +1,11 @@
 name: terraform-ci
 
 on:
-  push:
-    branches:
-      - "**"
-    paths:
-      - "terraform/**"
+#   push:
+#     branches:
+#       - "**"
+#     paths:
+#       - "terraform/**"
   workflow_dispatch:
 
 jobs:

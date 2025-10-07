@@ -63,3 +63,11 @@ git revert HEAD
 git push origin HEAD
 
 clean up^^
+===============
+remove AWS_ROLE_TO_ASSUME secret
+ecs terraform destory
+empty the ecr repos contents
+ecr terraform destroy
+empty s3 bucket
+bootstrap terraform destroy
+===============

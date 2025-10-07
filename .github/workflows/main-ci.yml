@@ -1,13 +1,13 @@
 name: main-ci
 
 on:
-  push:
-    branches:
-      - "**"
-    paths:
-      - "app/**"
-      - "scripts/**"
-      - "docker-compose.yml"
+#   push:
+#     branches:
+#       - "**"
+#     paths:
+#       - "app/**"
+#       - "scripts/**"
+#       - "docker-compose.yml"
   workflow_dispatch:
 
 permissions:
