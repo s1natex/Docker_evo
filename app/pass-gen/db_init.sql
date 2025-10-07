@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS saved_passwords (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
