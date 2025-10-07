@@ -11,7 +11,7 @@
 - `ECS Cluster`: AWS ECS cluster hosting both the frontend and backend services
 - `ECS Services`: Two ECS services managing container deployment, scaling, and availability
 - `ECS Tasks`: Definitions for running containers in ECS with environment variables, IAM roles and resource limits
-- `ALB`: - AWS ALB routing incoming traffic to the correct ECS service based on configured target groups
+- `ALB`: AWS ALB routing incoming traffic to the correct ECS service based on configured target groups
 - `Security Groups`: Networking rules allowing traffic only between approved components and ports
 - `Cloudwatch Logs`: Centralized logging for ECS tasks, capturing both application and system logs
 - `ECR`: Private AWS ECR repositories for storing built Docker images for frontend and backend

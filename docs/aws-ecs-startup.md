@@ -64,5 +64,5 @@ git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
 7. Run terraform destroy and see what is blocking
 8. Remove Blocking Resources -- terraform state rm <resource>
 9. Run terraform destroy -auto-approve -refresh=false -lock=false
-10. Verify AWS Cleaned Up
+10. Verify AWS Clean Up
 ```
