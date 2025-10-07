@@ -9,11 +9,13 @@ data "aws_iam_role" "ecs_task_role_main" {
 locals {
   tfstate_bucket = "docker-evo-tfstate-eu-central-1-430316"
   tfstate_prefix = "ecs"
-  ddb_lock_table = "docker-evo-tflock"
+  ddb_lock_table = "docker-evo-eu-central-1-tf-lock"
+
+  logs_group_arn_prefix = "arn:aws:logs:eu-central-1:${data.aws_caller_identity.current.account_id}:log-group:/ecs/docker-evo"
 }
 
 resource "aws_iam_policy" "gha_cd_perms" {
-  name = "docker-evo-gha-cd-permissions"
+  name   = "docker-evo-gha-cd-permissions"
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -32,9 +34,9 @@ resource "aws_iam_policy" "gha_cd_perms" {
         }
       },
       {
-        Sid    = "S3ObjectRW",
-        Effect = "Allow",
-        Action = [
+        Sid      = "S3ObjectRW",
+        Effect   = "Allow",
+        Action   = [
           "s3:GetObject",
           "s3:PutObject",
           "s3:DeleteObject",
@@ -42,20 +44,93 @@ resource "aws_iam_policy" "gha_cd_perms" {
         ],
         Resource = "arn:aws:s3:::${local.tfstate_bucket}/${local.tfstate_prefix}/*"
       },
+
       {
-        Sid    = "DDBLockRW",
-        Effect = "Allow",
-        Action = [
+        Sid      = "DDBLockRW",
+        Effect   = "Allow",
+        Action   = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
           "dynamodb:UpdateItem",
           "dynamodb:DescribeTable"
         ],
-        Resource = "arn:aws:dynamodb:*:*:table/${local.ddb_lock_table}"
+        Resource = "arn:aws:dynamodb:eu-central-1:${data.aws_caller_identity.current.account_id}:table/${local.ddb_lock_table}"
+      },
+
+      {
+        Sid    = "EC2Describe",
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeAvailabilityZones",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeRouteTables",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeNatGateways",
+          "ec2:DescribeInternetGateways",
+          "ec2:DescribeAddresses",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeTags"
+        ],
+        Resource = "*"
+      },
+
+      {
+        Sid    = "ELBv2Describe",
+        Effect = "Allow",
+        Action = [
+          "elasticloadbalancing:DescribeLoadBalancers",
+          "elasticloadbalancing:DescribeTargetGroups",
+          "elasticloadbalancing:DescribeTargetHealth",
+          "elasticloadbalancing:DescribeListeners",
+          "elasticloadbalancing:DescribeRules",
+          "elasticloadbalancing:DescribeTags"
+        ],
+        Resource = "*"
+      },
+
+      {
+        Sid    = "LogsDescribe",
+        Effect = "Allow",
+        Action = [
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ],
+        Resource = "*"
       },
       {
-        Sid    = "ECSRegisterAndDescribe",
+        Sid    = "LogsManageDockerEvo",
+        Effect = "Allow",
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:PutRetentionPolicy",
+          "logs:DeleteLogGroup",
+          "logs:TagLogGroup",
+          "logs:UntagLogGroup"
+        ],
+        Resource = [
+          "${local.logs_group_arn_prefix}",
+          "${local.logs_group_arn_prefix}*"
+        ]
+      },
+
+      {
+        Sid    = "IAMRead",
+        Effect = "Allow",
+        Action = [
+          "iam:GetRole",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListRolePolicies",
+          "iam:GetPolicy",
+          "iam:GetPolicyVersion"
+        ],
+        Resource = "*"
+      },
+
+      # --- ECS deploy: register task defs and update service ---
+      {
+        Sid    = "ECSDeploy",
         Effect = "Allow",
         Action = [
           "ecs:RegisterTaskDefinition",
@@ -70,6 +145,20 @@ resource "aws_iam_policy" "gha_cd_perms" {
         ],
         Resource = "*"
       },
+
+      {
+        Sid      = "IAMPassTaskRoles",
+        Effect   = "Allow",
+        Action   = [
+          "iam:PassRole",
+          "iam:GetRole"
+        ],
+        Resource = [
+          data.aws_iam_role.ecs_task_exec_role.arn,
+          data.aws_iam_role.ecs_task_role_main.arn
+        ]
+      },
+
       {
         Sid    = "SecretsManagerDescribeOnly",
         Effect = "Allow",
@@ -80,18 +169,6 @@ resource "aws_iam_policy" "gha_cd_perms" {
           "secretsmanager:GetResourcePolicy"
         ],
         Resource = "*"
-      },
-      {
-        Sid    = "IAMPassTaskRoles",
-        Effect = "Allow",
-        Action = [
-          "iam:PassRole",
-          "iam:GetRole"
-        ],
-        Resource = [
-          data.aws_iam_role.ecs_task_exec_role.arn,
-          data.aws_iam_role.ecs_task_role_main.arn
-        ]
       }
     ]
   })
