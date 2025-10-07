@@ -19,7 +19,7 @@
 - `DynamoDB Lock Table`: DynamoDB table providing state locking to prevent concurrent Terraform operations
 - `IAM Roles and Policies`: IAM roles for ECS tasks, Terraform, and GitHub Actions with least-privilege permissions
 - `OIDC Provider for Github Actions`: enabling GitHub Actions to assume AWS roles without long-term credentials
-- `Terraform Bootstrap`: Terraform setup that provisions S3, DynamoDB, IAM, OIDC for managing state and CI/CD access
+- `Terraform Bootstrap`: Provisions S3, DynamoDB, IAM, OIDC for managing state and CI/CD access
 - `Terraform ECS`: Terraform module managing application infrastructure such as ECS, networking, and ALB
 - `Terraform CI`: Workflow for validating terraform configurations files
 - `CI Workflow`: Workflow for building, testing, and pushing Docker images to ECR upon code changes
