@@ -8,11 +8,6 @@ on:
       - "app/**"
       - "scripts/**"
       - "docker-compose.yml"
-  pull_request:
-    paths:
-      - "app/**"
-      - "scripts/**"
-      - "docker-compose.yml"
   workflow_dispatch:
 
 permissions:
