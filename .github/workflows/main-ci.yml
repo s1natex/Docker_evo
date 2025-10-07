@@ -8,7 +8,7 @@ on:
       - "app/**"
       - "scripts/**"
       - "docker-compose.yml"
-  workflow_dispatch: {}
+  workflow_dispatch:
 
 permissions:
   id-token: write        # OIDC for AWS
