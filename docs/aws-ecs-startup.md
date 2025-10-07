@@ -1,73 +1,68 @@
-(1)
-initial bootstrap for remote and oidc
-deploy
+# Setup and Testing on AWS ECS-Fargate
+- ### Run initial Bootstrap for Remote State and OIDC
+```
 cd terraform/bootstrap
 terraform init
+terraform plan
 terraform apply
-
-destroy last
-cd terraform/bootstrap
-terraform destroy
-
-*empty s3 bucket manually if needed
-===============
-(2)
-ecr
-deploy 
+```
+- ### Deploy ECR Registries:
+```
 cd terraform/ecr
 terraform init
+terraform plan
 terraform apply
-
-destroy second to last
-cd terraform/ecr
-terraform destroy
-=========
-(3)
-push initial images to ecr with "initial tag"
-
+```
+- ### Manually Build and Push image to ECR with "initial" Tag:
+```
 pip install boto3
-aws configure # if needed
+aws configure  # if needed auth
 python scripts/build_and_push_initial.py
-
-destory 3rd to last
-empty the ecr repos contents
-=======
-(4)
-ecs deploy
+```
+- ### Deploy ECS-Fargate Cluster:
+```
 cd terraform/ecs
 terraform init
+terraform plan
 terraform apply
+```
+- ### Access `alb_dns_name` from `terraform output` in the browser
+- ### Test the CI/CD Zero-Downtime Deployment:
+- Get the `AWS_ROLE_TO_ASSUME` secret:
+```
+iam role aws iam list-roles | grep <gha-oidc-role-name>
+aws iam get-role --role-name <gha-oidc-role-name>
+```
+- Create `AWS_ROLE_TO_ASSUME` secret on `GitHub Actions Secrets`
+- Uncomment `main-ci.yml` and `terraform-ci.yml` Triggers
+- Make some changes to the following Folders:
+```
+- "app/**"
+- "scripts/**"
+- "docker-compose.yml"
 
-destroy 4th to last
-terraform destory
-========
-AWS_ROLE_TO_ASSUME update new one in github secrets has to be inline with current infra deployment!
-find iam role aws iam list-roles | grep <role-name-or-prefix>
-
-Then describe it 
-aws iam get-role --role-name <your-gha-oidc-role-name>
-
-make changes to files in the following paths
-      - "app/**"
-      - "scripts/**"
-      - "docker-compose.yml"
-
-add commit push
-
-watch cicd pick it up and pass 
-
-access alb_dns_name address terraform output and see the change made
-
-manual rollback procedure
+# Recommended: app/frontend/public/index.html
+```
+- Add -> Commit -> Push to `main` on GitHub
+- Watch CI: Test-Build-Publish-Commit new image back to `main`
+- Watch CD: Trigger on CI completion and Apply new tasks to AWS ECS-Fargate
+- Access `alb_dns_name` from `terraform output` in the browser and see the change with a Zero-Downtime Deployment
+- ### For a Manual Rollback using Local Git:
+```
 git revert HEAD
-git push origin HEAD
-
-clean up^^
-===============
-remove AWS_ROLE_TO_ASSUME secret
-ecs terraform destory
-empty the ecr repos contents
-ecr terraform destroy
-empty s3 bucket
-bootstrap terraform destroy
-===============
+git push origin HEAD:$(git rev-parse --abbrev-ref HEAD)
+# CI/CD will deploy the previous image version to AWS
+```
+- ### Clean Up:
+```
+1. Remove AWS_ROLE_TO_ASSUME Secret
+2. cd terraform/ecs -- terraform destroy
+3. Manually Empty ECR Registries
+4. cd terraform/ecr -- terraform destroy
+5. Manually Empty S3 Bucket
+6. cd terraform/bootstrap
+7. Run terraform destroy and see what is blocking
+8. Remove Blocking Resources -- terraform state rm <resource>
+9. Run terraform destroy -auto-approve -refresh=false -lock=false
+10. Verify AWS Cleaned Up
+```
