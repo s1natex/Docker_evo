@@ -46,6 +46,7 @@
       #output{padding:10px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;font-size:1.05rem;word-break:break-all;min-height:1.8em}
       .copy,.use{padding:10px 14px;border-radius:10px;border:1px solid var(--card-border);background:rgba(255,255,255,0.05);color:var(--text);cursor:pointer;transition:transform .06s ease,filter .12s ease}
       .copy:active,.use:active{transform:translateY(1px)}
+      .pressed{transform:translateY(1px) scale(0.98)}
       #saveWindow{display:none;padding:20px;border-top:1px solid var(--card-border);background:rgba(255,255,255,0.03)}
       #saveWindow input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--card-border);margin-bottom:12px;background:transparent;color:var(--text)}
       .foot{padding:0 28px 28px;color:var(--muted);font-size:.9rem}
@@ -65,7 +66,7 @@
           <div class="logo"></div>
           <div><h1>Password-Generator</h1></div>
         </div>
-        <p class="sub">Generate strong, random passwords in one click.(test)</p>
+        <p class="sub">Generate strong, random passwords in one click. (testing1)</p>
 
         <section class="controls">
           <div class="field">
@@ -120,6 +121,35 @@
       function showToast(m){toast.textContent=m;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),1200)}
       function pulse(el){el.classList.add("pressed");setTimeout(()=>el.classList.remove("pressed"),120)}
 
+      async function copyToClipboard(text){
+        if(!text) return false;
+        try{
+          if(navigator.clipboard && window.isSecureContext){
+            await navigator.clipboard.writeText(text);
+            showToast("Copied");
+            return true;
+          }
+        }catch(e){}
+        try{
+          const ta=document.createElement("textarea");
+          ta.value=text;
+          ta.setAttribute("readonly","");
+          ta.style.position="fixed";
+          ta.style.top="-1000px";
+          ta.style.opacity="0";
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          const ok=document.execCommand("copy");
+          document.body.removeChild(ta);
+          showToast(ok?"Copied":"Copy failed");
+          return ok;
+        }catch(e){
+          showToast("Copy failed");
+          return false;
+        }
+      }
+
       async function generate(){
         const L=clamp(parseInt(len.value,10)||16,8,128);
         len.value=String(L);range.value=String(L);
@@ -134,7 +164,7 @@
 
       $("gen").onclick=async()=>{await generate();updateEntropy()}
       $("reset").onclick=()=>{out.textContent=""}
-      $("copy").onclick=async(e)=>{pulse(e.currentTarget);const t=out.textContent.trim();if(!t)return;await navigator.clipboard.writeText(t);showToast("Copied")}
+      $("copy").onclick=async(e)=>{pulse(e.currentTarget);const t=out.textContent.trim();if(!t)return;await copyToClipboard(t)}
       $("use").onclick=(e)=>{pulse(e.currentTarget);if(!out.textContent.trim())return;toggleSaveWindow(true);$("saveName").focus()}
       $("backBtn").onclick=()=>toggleSaveWindow(false)
 
@@ -166,8 +196,8 @@
             info.appendChild(title);info.appendChild(small);
             const copy=document.createElement("button");copy.className="btn-mini";copy.textContent="Copy";
             const del=document.createElement("button");del.className="btn-mini";del.textContent="Del";
-            copy.onclick=async()=>{await navigator.clipboard.writeText(p.password||"");showToast("Copied")};
-            del.onclick=async()=>{await fetch("/api/passwords/"+p.id,{method:"DELETE"});loadPasswords();showToast("Deleted")};
+            copy.onclick=async()=>{pulse(copy);await copyToClipboard(p.password||"")};
+            del.onclick=async()=>{pulse(del);await fetch("/api/passwords/"+p.id,{method:"DELETE"});loadPasswords();showToast("Deleted")};
             div.append(info,copy,del);listEl.appendChild(div);
           });
         }catch{}
