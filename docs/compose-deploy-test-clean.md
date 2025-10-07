@@ -7,6 +7,6 @@ docker compose up --build
 
 http://localhost:3000/
 
-
+python ./scripts/run_e2e.py
 
 docker compose down
