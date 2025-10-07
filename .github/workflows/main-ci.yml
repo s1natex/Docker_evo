@@ -11,8 +11,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write        # OIDC for AWS
-  contents: write        # commit the image tag bump back
+  id-token: write
+  contents: write
   packages: read
 
 concurrency:
@@ -30,12 +30,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (full history so we can push back)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ---------- Test phase ----------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -46,36 +45,31 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Install Python deps (backend tests)
+      - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
           pip install -r app/pass-gen/requirements.txt
           pip install pytest
 
       - name: Run unit tests
-        run: |
-          python ./scripts/run_unit.py
+        run: python ./scripts/run_unit.py
 
       - name: Start compose stack
         run: |
           docker compose up -d
-          # Brief grace period; e2e script also polls for readiness
           sleep 5
 
       - name: Run E2E tests
-        run: |
-          python ./scripts/run_e2e.py
+        run: python ./scripts/run_e2e.py
 
       - name: Stop compose stack
         if: always()
-        run: |
-          docker compose down -v
+        run: docker compose down -v
 
-      # ---------- Build & Push (OIDC) ----------
-      - name: Configure AWS credentials (OIDC)
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}   # e.g. arn:aws:iam::123456789012:role/docker-evo-gha-oidc
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
@@ -94,7 +88,6 @@ jobs:
           TAG="${NAME}-${TS}-${SHA}"
           echo "TAG=${TAG}" >> $GITHUB_OUTPUT
           echo "TAG=${TAG}" >> $GITHUB_ENV
-          echo "Computed tag: ${TAG}"
 
       - name: Build images
         run: |
@@ -108,12 +101,10 @@ jobs:
           docker push "${REG}/${ECR_FRONTEND_REPO}:${TAG}"
           docker push "${REG}/${ECR_PASSGEN_REPO}:${TAG}"
 
-      # ---------- Bump Terraform image tag and commit back ----------
       - name: Update terraform image tag
         run: |
           mkdir -p terraform/ecs
           echo "image_tag = \"${TAG}\"" > terraform/ecs/image.auto.tfvars
-          echo "Updated terraform/ecs/image.auto.tfvars to image_tag=${TAG}"
 
       - name: Commit and push [skip ci]
         env:
@@ -127,6 +118,5 @@ jobs:
           if ! git diff --cached --quiet; then
             git commit -m "chore(ci): bump image_tag to ${TAG} [skip ci]"
             git push origin "HEAD:${BRANCH}"
-          else
-            echo "No changes to commit."
           fi
+          echo "No changes to commit."
