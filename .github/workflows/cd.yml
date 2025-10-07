@@ -36,9 +36,15 @@ jobs:
         with:
           terraform_version: 1.9.x
 
+      - name: Terraform fmt (check)
+        run: terraform fmt -recursive -check -diff
+
       - name: Terraform init
         working-directory: terraform/ecs
         run: terraform init -input=false -no-color
+
+      - name: Terraform validate
+        run: terraform validate -no-color
 
       - name: Terraform apply
         working-directory: terraform/ecs
