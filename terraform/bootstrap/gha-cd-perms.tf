@@ -1,12 +1,8 @@
-data "aws_iam_role" "gha_oidc_role" {
-  name = "docker-evo-eu-central-1-gha-oidc-role"
-}
-
-data "aws_iam_role" "ecs_task_exec" {
+data "aws_iam_role" "ecs_task_exec_role" {
   name = "docker-evo-task-exec-role"
 }
 
-data "aws_iam_role" "ecs_task_role" {
+data "aws_iam_role" "ecs_task_role_main" {
   name = "docker-evo-task-role"
 }
 
@@ -22,13 +18,13 @@ resource "aws_iam_policy" "gha_cd_perms" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid: "S3ListBucketPrefix",
-        Effect: "Allow",
-        Action: ["s3:ListBucket"],
-        Resource: "arn:aws:s3:::${local.tfstate_bucket}",
-        Condition: {
-          StringLike: {
-            "s3:prefix": [
+        Sid      = "S3ListBucketPrefix",
+        Effect   = "Allow",
+        Action   = ["s3:ListBucket"],
+        Resource = "arn:aws:s3:::${local.tfstate_bucket}",
+        Condition = {
+          StringLike = {
+            "s3:prefix" : [
               "${local.tfstate_prefix}",
               "${local.tfstate_prefix}/*"
             ]
@@ -36,34 +32,32 @@ resource "aws_iam_policy" "gha_cd_perms" {
         }
       },
       {
-        Sid: "S3ObjectRW",
-        Effect: "Allow",
-        Action: [
+        Sid    = "S3ObjectRW",
+        Effect = "Allow",
+        Action = [
           "s3:GetObject",
           "s3:PutObject",
           "s3:DeleteObject",
           "s3:AbortMultipartUpload"
         ],
-        Resource: "arn:aws:s3:::${local.tfstate_bucket}/${local.tfstate_prefix}/*"
+        Resource = "arn:aws:s3:::${local.tfstate_bucket}/${local.tfstate_prefix}/*"
       },
-
       {
-        Sid: "DDBLockRW",
-        Effect: "Allow",
-        Action: [
+        Sid    = "DDBLockRW",
+        Effect = "Allow",
+        Action = [
           "dynamodb:GetItem",
           "dynamodb:PutItem",
           "dynamodb:DeleteItem",
           "dynamodb:UpdateItem",
           "dynamodb:DescribeTable"
         ],
-        Resource: "arn:aws:dynamodb:*:*:table/${local.ddb_lock_table}"
+        Resource = "arn:aws:dynamodb:*:*:table/${local.ddb_lock_table}"
       },
-
       {
-        Sid: "ECSRegisterAndDescribe",
-        Effect: "Allow",
-        Action: [
+        Sid    = "ECSRegisterAndDescribe",
+        Effect = "Allow",
+        Action = [
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition",
           "ecs:DescribeTaskDefinition",
@@ -74,31 +68,29 @@ resource "aws_iam_policy" "gha_cd_perms" {
           "ecs:DescribeTasks",
           "ecs:ListServices"
         ],
-        Resource: "*"
+        Resource = "*"
       },
-
       {
-        Sid: "SecretsManagerDescribeOnly",
-        Effect: "Allow",
-        Action: [
+        Sid    = "SecretsManagerDescribeOnly",
+        Effect = "Allow",
+        Action = [
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecrets",
           "secretsmanager:ListSecretVersionIds",
           "secretsmanager:GetResourcePolicy"
         ],
-        Resource: "*"
+        Resource = "*"
       },
-
       {
-        Sid: "IAMPassTaskRoles",
-        Effect: "Allow",
-        Action: [
+        Sid    = "IAMPassTaskRoles",
+        Effect = "Allow",
+        Action = [
           "iam:PassRole",
           "iam:GetRole"
         ],
-        Resource: [
-          "${data.aws_iam_role.ecs_task_exec.arn}",
-          "${data.aws_iam_role.ecs_task_role.arn}"
+        Resource = [
+          data.aws_iam_role.ecs_task_exec_role.arn,
+          data.aws_iam_role.ecs_task_role_main.arn
         ]
       }
     ]
