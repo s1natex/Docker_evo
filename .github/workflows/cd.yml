@@ -19,11 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout triggering commit
+      - name: Checkout latest branch state
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.workflow_run.repository.full_name }}
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: refs/heads/${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
 
       - name: Configure AWS credentials
