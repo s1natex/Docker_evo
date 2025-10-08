@@ -1,5 +1,5 @@
 # Setup and Testing on AWS ECS-Fargate
-- ### Run initial Bootstrap for Remote State and OIDC
+- ### Run initial Bootstrap for Remote State and OIDC:
 ```
 cd terraform/bootstrap
 terraform init
